@@ -1,111 +1,107 @@
-const calculator = document.querySelector(".container");
-const keys = calculator.querySelector(".keys");
-const display = calculator.querySelector(".display");
+const numbers = document.querySelectorAll("[data-number]")
+const operations = document.querySelectorAll("[data-operation]")
+const display = document.querySelector("[data-output]")
+const clearKey = document.querySelector("[data-clear]")
+const deleteKey = document.querySelector("[data-delete]")
+const equal = document.querySelector("[data-equal]")
+const decimalKey = document.querySelector("[data-decimal]")
 
-//an event that saves the target key pressed
-keys.addEventListener("click", e => {
-    if (e.target.matches("button")) {
-        //do something
-        //determines what data-action was pressed.
-        const key = e.target;
-        const action = key.dataset.action;
-        const keyContent = key.textContent;
-        const displayNum = display.textContent;
-        const previousKeyType = calculator.dataset.previousKeyType;
+let firstOperand = "";
+let selectedOperator = "";
+let secondOperand = "";
 
-        Array.from(key.parentNode.children)
-            .forEach(k => k.classList.remove("damn"));
-            
+numbers.forEach(number => {
+    number.addEventListener("click", () => {
+        updateDisplay(number.textContent)
+    })
+})
 
-        if (!action) {
-            if (displayNum === "0" || 
-                previousKeyType === "operator" ||
-                previousKeyType === "calculate") {
-                display.textContent = keyContent;
-            } else { 
-                display.textContent = displayNum + keyContent;
-            }
-            calculator.dataset.previousKeyType = "number";
-        }
-        if (action === "decimal") { 
-            if(!displayNum.includes(".")) {
-            display.textContent = displayNum + ".";
-        } else if (previousKeyType === "operator" || previousKeyType === "calculate") {
-            display.textContent = "0";
-        }
-        calculator.dataset.previousKeyType = "decimal";
-        }
-        if (
-            action === "add" ||
-            action === "subtract" ||
-            action === "multiply" ||
-            action === "divide"
-        ) {
-            
-            //add custom attribute
+operations.forEach(operation => {
+    operation.addEventListener("click", () => {
+        setOperator(operation.textContent);
+    })
+})
 
-            const firstVal = calculator.dataset.firstVal;
-            const operator = calculator.dataset.operator;
-            const secondVal = displayNum;
+equal.addEventListener("click", equals);
+clearKey.addEventListener("click", clear);
+decimalKey.addEventListener("click", inputDecimal)
+deleteKey.addEventListener("click", deleteChar)
 
-            if (firstVal && 
-                operator &&
-                previousKeyType !== "operator" &&
-                previousKeyType !== "calculate") 
-            {
-                const calcVal = calculate(firstVal, operator, secondVal);
-                display.textContent = calcVal;
-
-                calculator.dataset.firstVal = calcVal;
-            } else {
-                calculator.dataset.firstVal = displayNum;
-            }
-            
-            key.classList.add("damn");
-            calculator.dataset.previousKeyType = "operator";
-            calculator.dataset.operator = action;
-        }
-
-
-
-        if (action === "calculate") {
-            let firstVal = calculator.dataset.firstVal;
-            const operator = calculator.dataset.operator;
-            let secondVal = displayNum;
-
-            if(firstVal){
-                if (previousKeyType === "calculate"){
-                    firstVal = displayNum;
-                    secondVal = calculator.dataset.modVal;
-                }
-                display.textContent = calculate(firstVal, operator, secondVal);
-            }
-            calculator.dataset.modVal = secondVal;
-            calculator.dataset.previousKeyType = "calculate";
-        }
-
-        function calculate(a, operator, b){
-            let c = parseFloat(a);
-            let d = parseFloat(b);
-            let result = "";
-            if (operator === "add"){
-                result = c + d;
-            }
-            else if (operator === "subtract"){
-                result = c - d;
-            }
-            else if (operator === "divide"){
-                result = c/d;
-            }
-            else if (operator === "multiply"){
-                result = c * d;
-            }
-            return result;
-        }
-        
+//Handles the calculation
+function equals(){
+    if(selectedOperator === "/" && display.textContent === "0"){
+      alert("Don't divide by 0, it'll cause the universe to collapse")
+      clear();
+      return;
     }
-});
+    secondOperand = display.textContent;
+    display.textContent = Math.round(operate(firstOperand, selectedOperator, secondOperand));
+}
+
+//Sets the operator
+function setOperator(operatorValue) {
+    firstOperand = display.textContent;
+    selectedOperator = operatorValue;
+    display.textContent = "";
+}
+
+//Calls the relevant function 
+function operate(a, operator, b) {
+    const c = Number(a)
+    const d = Number(b)
+    
+    if (operator == "+"){
+        return add(c, d)
+    } else if (operator == "-"){
+        return subtract(c, d)
+    } else if (operator == "/"){
+        return divide(c, d)
+    } else if (operator == "*"){
+        return multiply(c, d);
+    }
+}
 
 
+function add(a,b) {
+    return a + b;
+}
+
+function subtract(a,b) {
+    return a - b;
+}
+
+function divide(a,b) {
+    return a / b;
+}
+
+function multiply(a,b) {
+    return a * b;
+}
+
+//Clears the display
+function clear() {
+  display.textContent = "";
+  firstOperand = "";
+  secondOperand = "";
+  selectedOperator = "";
+}
+
+//Updates the display by adding the new number
+function updateDisplay(number) {
+    display.textContent += number;
+}
+
+//Dealing with decimals 
+function inputDecimal() {
+  if(!display.textContent.includes(".")){
+
+    display.textContent += ".";
+  }
+}
+
+//Deletes the characters from the screen;
+function deleteChar() {
+  display.textContent = display.textContent.toString().slice(0, -1);
+}
 
 
