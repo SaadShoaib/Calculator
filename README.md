@@ -2,7 +2,7 @@
 
 A basic javascript calculator that performs calculations like addition, subtraction, division and multiplications. I also added support for floating digits.
 
-##Technologies Used
+## Technologies Used
 * Javascript
 * CSS
 * HTML
